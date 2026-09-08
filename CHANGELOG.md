@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Notification titles name the project instead of a session mnemonic** - the title now reads `✅ Completed [my-project]` rather than `✅ Completed [swift 274b9ac1]`, whose label was derived from the session UUID and identified nothing the reader could recognise. The name is the git working tree root folder, so a session started in a subdirectory is still named after its project (`.../my-project/harness/tests` reads as `my-project`, not `tests`); a linked worktree reports its own root, so worktrees of one repository stay distinguishable. Outside a repository the `cwd` folder name is used, and when `cwd` is unavailable the previous mnemonic is kept, so the title never loses its identifier. Nothing else about the notification changes.
+
 ### Added
 - **Do Not Disturb aware notifications on Linux** - `respectDoNotDisturb` (default `"off"`) lets the plugin honour the desktop's DND state. `"silent"` still delivers the banner, so it lands in the notification centre, but skips the plugin's own audio cue - which previously played through DND because the sound is played by the plugin rather than the notification server. `"suppress"` skips the notification entirely. Detected via `org.freedesktop.Notifications.Inhibited` (KDE Plasma), dunst's `paused` property, Xfconf `xfce4-notifyd/do-not-disturb`, and GNOME's `show-banners` GSetting; any unreadable state fails open and delivers the notification as before. macOS Focus modes and Windows Focus Assist are not detected yet and always report "not in DND". Webhooks are unaffected. See [docs/DO_NOT_DISTURB.md](docs/DO_NOT_DISTURB.md)
 

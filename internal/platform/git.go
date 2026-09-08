@@ -22,6 +22,15 @@ func GetGitBranch(cwd string) string {
 	return getGitOutput(cwd, "rev-parse", "--abbrev-ref", "HEAD")
 }
 
+// GetGitRoot returns the absolute path of the git working tree containing cwd.
+// Returns empty string if cwd is not inside a git repository or on error.
+//
+// In a linked worktree this is the worktree's own root rather than the main
+// repository, so two worktrees of the same repo stay distinguishable.
+func GetGitRoot(cwd string) string {
+	return getGitOutput(cwd, "rev-parse", "--show-toplevel")
+}
+
 // GetGitMetadata returns commonly used git metadata for the given directory.
 // Empty fields indicate the directory is not a git repo or the value is unavailable.
 func GetGitMetadata(cwd string) GitMetadata {

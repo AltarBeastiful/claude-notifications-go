@@ -15,16 +15,18 @@ type legacyDesktopPresentation struct {
 	TimeSensitive bool
 }
 
-func legacyPresentation(status analyzer.Status, message, statusTitle string, sessionLabel bool) legacyDesktopPresentation {
+func legacyPresentation(status analyzer.Status, message, statusTitle, cwd string, sessionLabel bool) legacyDesktopPresentation {
 	// Extract session name, git branch and folder name from message
 	// Format: "[session-name|branch folder] actual message" or "[session-name folder] actual message"
 	sessionName, gitBranch, cleanMessage := extractSessionInfo(message)
 
-	// Build clean title (status only + session name)
-	// Format: "✅ Completed [peak]" or "✅ Completed"
+	// Build clean title (status only + project name)
+	// Format: "✅ Completed [my-project]" or "✅ Completed"
 	title := statusTitle
-	if sessionName != "" && sessionLabel {
-		title = fmt.Sprintf("%s [%s]", title, sessionName)
+	if sessionLabel {
+		if identity := titleIdentity(cwd, sessionName); identity != "" {
+			title = fmt.Sprintf("%s [%s]", title, identity)
+		}
 	}
 
 	// Build subtitle from branch and folder name

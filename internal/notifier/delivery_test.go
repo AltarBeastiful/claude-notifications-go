@@ -272,11 +272,11 @@ func TestPR3SuspendCancelsBlockedProbe(t *testing.T) {
 	}
 }
 func TestPR3LegacyPresentationCharacterization(t *testing.T) {
-	got := legacyPresentation(analyzer.StatusPermissionRequest, "[session|main folder] body", "Permission", true)
+	got := legacyPresentation(analyzer.StatusPermissionRequest, "[session|main folder] body", "Permission", "", true)
 	if got.Title != "Permission [session]" || got.Subtitle != "main · folder" || got.Body != "body" || !got.TimeSensitive {
 		t.Fatalf("legacy presentation changed %+v", got)
 	}
-	got = legacyPresentation(analyzer.StatusTaskComplete, "[important] body", "Done", false)
+	got = legacyPresentation(analyzer.StatusTaskComplete, "[important] body", "Done", "", false)
 	// Characterize the intentional legacy bracket extraction. The explicit
 	// request test above independently proves it does not use this parser.
 	_, branch, body := extractSessionInfo("[important] body")
@@ -462,7 +462,7 @@ func TestPR3LegacyStatusAndSessionLabelMatrix(t *testing.T) {
 		{analyzer.StatusAPIErrorOverloaded, true}, {analyzer.StatusPermissionRequest, true},
 	} {
 		for _, label := range []bool{false, true} {
-			got := legacyPresentation(tc.status, "[session|branch folder] exact body", "Custom status title", label)
+			got := legacyPresentation(tc.status, "[session|branch folder] exact body", "Custom status title", "", label)
 			title := "Custom status title"
 			if label {
 				title += " [session]"
