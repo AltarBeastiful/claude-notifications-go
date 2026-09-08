@@ -101,11 +101,15 @@ func (n *Notifier) SendDesktop(status analyzer.Status, message, sessionID, cwd s
 	// Format: "[session-name|branch folder] actual message" or "[session-name folder] actual message"
 	sessionName, gitBranch, cleanMessage := extractSessionInfo(message)
 
-	// Build clean title (status only + session name)
-	// Format: "✅ Completed [peak]" or "✅ Completed"
+	// Build clean title (status only + project name)
+	// Format: "✅ Completed [my-project]" or "✅ Completed"
 	title := statusInfo.Title
-	if sessionName != "" && n.cfg.IsSessionLabelEnabled() {
-		title = fmt.Sprintf("%s [%s]", title, sessionName)
+	// The label is resolved only when it will be shown: titleIdentity consults
+	// git, so the config gate has to short-circuit before it.
+	if n.cfg.IsSessionLabelEnabled() {
+		if identity := titleIdentity(cwd, sessionName); identity != "" {
+			title = fmt.Sprintf("%s [%s]", title, identity)
+		}
 	}
 
 	// Build subtitle from branch and folder name
