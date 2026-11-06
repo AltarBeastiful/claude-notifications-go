@@ -176,3 +176,56 @@ func runGitCommand(dir string, args ...string) error {
 	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
 	return cmd.Run()
 }
+
+func TestGetGitRoot_RealRepo(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "git-root-test-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	if err := runGitCommand(tmpDir, "init"); err != nil {
+		t.Skipf("git not available: %v", err)
+	}
+
+	// macOS puts temp dirs under /var, a symlink to /private/var, and git
+	// reports the resolved path - so compare against the resolved temp dir.
+	wantRoot, err := filepath.EvalSymlinks(tmpDir)
+	if err != nil {
+		t.Fatalf("Failed to resolve temp dir: %v", err)
+	}
+
+	if root := GetGitRoot(tmpDir); root != wantRoot {
+		t.Errorf("GetGitRoot(repo root) = %q, want %q", root, wantRoot)
+	}
+
+	// A subdirectory must report the repository root, not itself: this is what
+	// lets a session started in a subdirectory be named after its project.
+	subDir := filepath.Join(tmpDir, "harness", "tests")
+	if err := os.MkdirAll(subDir, 0755); err != nil {
+		t.Fatalf("Failed to create subdirectory: %v", err)
+	}
+	if root := GetGitRoot(subDir); root != wantRoot {
+		t.Errorf("GetGitRoot(subdirectory) = %q, want %q", root, wantRoot)
+	}
+}
+
+func TestGetGitRoot_NotARepo(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "git-root-none-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// A directory outside any working tree yields "", so callers fall back to
+	// the directory name itself.
+	if root := GetGitRoot(tmpDir); root != "" {
+		t.Errorf("GetGitRoot(non-repo) = %q, want \"\"", root)
+	}
+}
+
+func TestGetGitRoot_EmptyCwd(t *testing.T) {
+	if root := GetGitRoot(""); root != "" {
+		t.Errorf("GetGitRoot(\"\") = %q, want \"\"", root)
+	}
+}

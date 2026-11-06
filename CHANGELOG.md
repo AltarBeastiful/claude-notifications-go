@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Notification titles name the project instead of a session mnemonic** - the title now reads `✅ [my-project]` rather than `✅ [swift 274b9ac1]`, whose label was derived from the session UUID and identified nothing the reader could recognise. The name is the git working tree root folder, so a session started in a subdirectory is still named after its project; a linked worktree reports its own root. Outside a repository the `cwd` folder name is used, and when `cwd` is unavailable the previous mnemonic is kept.
+
 ## [1.51.2] - 2026-11-05
 
 ### Fixed

@@ -125,7 +125,7 @@ func TestCompletionSessionLabelTitles(t *testing.T) {
 			}
 			for path, got := range map[string]legacyDesktopPresentation{
 				"structured": hookPresentation(tc.status, HookPresentation{SessionName: tc.label, Branch: "main", Folder: "sandbox", Body: "Exact body"}, tc.title, tc.show),
-				"legacy":     legacyPresentation(tc.status, message, tc.title, tc.show),
+				"legacy":     legacyPresentation(tc.status, message, tc.title, "", tc.show),
 			} {
 				if got.Title != tc.want || got.Body != "Exact body" {
 					t.Fatalf("%s presentation = %+v, want title %q and unchanged body", path, got, tc.want)
@@ -150,11 +150,11 @@ func TestCompletionSessionLabelTruncation(t *testing.T) {
 	if structured.Title != "✅ ["+strings.Repeat("界", 99)+"…]" {
 		t.Fatalf("structured completion title = %q", structured.Title)
 	}
-	legacy := legacyPresentation(analyzer.StatusTaskComplete, "["+label+"] body", "✅ Completed", true)
+	legacy := legacyPresentation(analyzer.StatusTaskComplete, "["+label+"] body", "✅ Completed", "", true)
 	if legacy.Title != "✅ ["+label+"]" {
 		t.Fatalf("legacy completion title = %q", legacy.Title)
 	}
-	legacyBlank := legacyPresentation(analyzer.StatusTaskComplete, "[ \t ] body", "✅ Completed", true)
+	legacyBlank := legacyPresentation(analyzer.StatusTaskComplete, "[ \t ] body", "✅ Completed", "", true)
 	if legacyBlank.Title != "✅ Completed [ \t ]" {
 		t.Fatalf("blank legacy label changed default title: %q", legacyBlank.Title)
 	}
