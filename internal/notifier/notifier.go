@@ -107,7 +107,7 @@ func (n *Notifier) SendDesktop(status analyzer.Status, message, sessionID, cwd s
 		return fmt.Errorf("unknown status: %s", status)
 	}
 
-	presentation := legacyPresentation(status, message, statusInfo.Title, n.cfg.IsSessionLabelEnabled())
+	presentation := legacyPresentation(status, message, statusInfo.Title, cwd, n.cfg.IsSessionLabelEnabled())
 	if sendOpts.hookPresentation != nil {
 		presentation = hookPresentation(status, *sendOpts.hookPresentation, statusInfo.Title, n.cfg.IsSessionLabelEnabled())
 	}
